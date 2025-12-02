@@ -1,0 +1,153 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* fonte fallback */
+:root {
+  --neon: #00eaff;
+  --neon-2: #7c3aed;
+  --panel: rgba(255,255,255,0.04);
+}
+
+/* Corpo / fundo */
+html, body, #root {
+  height: 100%;
+}
+body {
+  background: radial-gradient(1200px 600px at 10% 10%, rgba(124,58,237,0.10), transparent 10%),
+              radial-gradient(900px 400px at 90% 90%, rgba(0,234,255,0.06), transparent 10%),
+              #0b1020;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  color: #e6f7ff;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* Centralizar layout da página */
+.app-center {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+/* Painel de vidro */
+.calc-panel {
+  width: 420px;
+  max-width: 95vw;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow:
+    0 10px 30px rgba(2,6,23,0.7),
+    0 0 40px rgba(0,234,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  backdrop-filter: blur(8px) saturate(120%);
+  position: relative;
+}
+
+/* Linha de destaque do cabeçalho */
+.calc-accent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 6px;
+  width: 100%;
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+  background: linear-gradient(90deg, rgba(0,234,255,0.95), rgba(124,58,237,0.95));
+  filter: blur(6px);
+  opacity: 0.9;
+}
+
+/* Display */
+.calc-display {
+  height: 92px;
+  border-radius: 12px;
+  background: rgba(5,10,20,0.45);
+  display:flex;
+  align-items:center;
+  justify-content: flex-end;
+  padding: 18px;
+  font-size: 2.2rem;
+  color: #bfefff;
+  letter-spacing: 0.6px;
+  box-shadow: inset 0 -6px 18px rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.03);
+  overflow: hidden;
+  word-break: break-all;
+}
+
+/* Pequeno subtítulo acima do display (opcional) */
+.calc-sub {
+  font-size: 0.8rem;
+  color: rgba(190,239,255,0.65);
+  margin-bottom: 8px;
+}
+
+/* Grade do teclado */
+.keypad {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+/* Base dos botões */
+.calc-btn {
+  height: 56px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.12));
+  border: 1px solid rgba(255,255,255,0.03);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: #bfefff;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hover / foco */
+.calc-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0,234,255,0.06), 0 2px 8px rgba(124,58,237,0.04);
+}
+
+/* Visual de ativo (mouse pressionado ou teclado) */
+.calc-btn.active {
+  transform: translateY(0);
+  box-shadow: 0 6px 22px rgba(0,234,255,0.09);
+  background: linear-gradient(180deg, rgba(0,234,255,0.06), rgba(124,58,237,0.03));
+  color: white;
+}
+
+/* Cores especiais */
+.btn-operator { color: #ffd6a5; }
+.btn-equal { 
+  background: linear-gradient(90deg, rgba(0,234,255,0.12), rgba(124,58,237,0.12));
+  color: white;
+  font-size: 1.05rem;
+  font-weight: 700;
+  box-shadow: 0 8px 30px rgba(0,234,255,0.06);
+}
+.btn-danger { color: #ff9aa2; }
+
+/* Utilidades de espaçamento (para botões largos) */
+.col-span-2 { grid-column: span 2; }
+.col-span-4 { grid-column: span 4; }
+
+/* Pequenos rótulos sutis */
+.btn-label-small { font-size: 0.85rem; color: rgba(190,239,255,0.7); }
+
+/* Responsivo */
+@media (max-width:420px) {
+  .calc-panel { padding: 14px; border-radius: 14px; }
+  .calc-display { height: 84px; font-size: 1.6rem; padding: 14px; }
+  .calc-btn { height: 52px; font-size: 0.98rem; border-radius: 10px; }
+}

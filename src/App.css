@@ -1,38 +1,44 @@
+/* ----- CONTAINER PRINCIPAL DO APP ----- */
 .App {
-  text-align: center;
+  text-align: center;  /* Centraliza o conteúdo dentro do container */
 }
 
+/* ----- LOGO DO APLICATIVO (ex: logo do React) ----- */
 .App-logo {
-  height: 40vmin;
-  pointer-events: none;
+  height: 40vmin;         /* Define a altura proporcional à tela (40% da menor dimensão da viewport) */
+  pointer-events: none;   /* Impede que o logo intercepte cliques do usuário */
 }
 
+/* ----- ANIMAÇÃO CONDICIONAL (somente se o usuário permitir movimento) ----- */
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+    animation: App-logo-spin infinite 20s linear;  /* Faz o logo girar continuamente */
   }
 }
 
+/* ----- CABEÇALHO PRINCIPAL ----- */
 .App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  background-color: #282c34;            /* Fundo escuro (padrão do React) */
+  min-height: 100vh;                    /* Ocupa toda a altura da tela */
+  display: flex;                        /* Usa flexbox para organizar os elementos */
+  flex-direction: column;               /* Organiza os elementos em coluna */
+  align-items: center;                  /* Centraliza horizontalmente */
+  justify-content: center;              /* Centraliza verticalmente */
+  font-size: calc(10px + 2vmin);        /* Tamanho de fonte adaptável à tela */
+  color: white;                         /* Texto branco */
 }
 
+/* ----- LINKS PADRÃO (ex: "Learn React") ----- */
 .App-link {
-  color: #61dafb;
+  color: #61dafb;  /* Azul claro — cor padrão da logo do React */
 }
 
+/* ----- ANIMAÇÃO DO LOGO (giro contínuo) ----- */
 @keyframes App-logo-spin {
   from {
-    transform: rotate(0deg);
+    transform: rotate(0deg);    /* Começa sem rotação */
   }
   to {
-    transform: rotate(360deg);
+    transform: rotate(360deg);  /* Gira 360° (rotação completa) */
   }
 }
