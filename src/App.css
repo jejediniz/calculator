@@ -1,44 +1,54 @@
-/* ----- CONTAINER PRINCIPAL DO APP ----- */
-.App {
-  text-align: center;  /* Centraliza o conteúdo dentro do container */
+/* src/App.css */
+
+/* Variáveis: ajuste aqui a largura/altura desejada dos painéis */
+:root{
+  --panel-w: 420px;    /* largura de cada painel */
+  --panel-h: 520px;    /* altura de cada painel */
+  --gap: 36px;         /* espaço entre painéis */
 }
 
-/* ----- LOGO DO APLICATIVO (ex: logo do React) ----- */
-.App-logo {
-  height: 40vmin;         /* Define a altura proporcional à tela (40% da menor dimensão da viewport) */
-  pointer-events: none;   /* Impede que o logo intercepte cliques do usuário */
+/* Reset/estrutura básica (se já tiver outras regras, mantenha compatíveis) */
+html,body,#root{
+  height:100%;
+  overflow: hidden !important;
 }
 
-/* ----- ANIMAÇÃO CONDICIONAL (somente se o usuário permitir movimento) ----- */
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;  /* Faz o logo girar continuamente */
+/* Área que ocupa toda a tela com fundo já existente */
+.app-root{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:40px;
+  box-sizing:border-box;
+}
+
+/* Centraliza o bloco de painéis e limita largura */
+.app-center{
+  width:100%;
+  max-width: 1200px;
+  display:flex;
+  justify-content:center;
+}
+
+/* Grid/flex que contém os dois painéis lado a lado */
+.panels{
+  display:flex;
+  gap:var(--gap);
+  align-items:flex-start; /* alinhar ao topo dos painéis */
+  justify-content:center;
+  /* para manter ambos centralizados verticalmente dentro do app-center */
+}
+
+/* Em telas pequenas empilha os painéis verticalmente */
+@media (max-width: 980px){
+  :root{
+    --panel-w: calc(100vw - 64px); /* usa largura da tela */
+    --panel-h: auto; /* altura automática */
+    --gap: 18px;
   }
-}
-
-/* ----- CABEÇALHO PRINCIPAL ----- */
-.App-header {
-  background-color: #282c34;            /* Fundo escuro (padrão do React) */
-  min-height: 100vh;                    /* Ocupa toda a altura da tela */
-  display: flex;                        /* Usa flexbox para organizar os elementos */
-  flex-direction: column;               /* Organiza os elementos em coluna */
-  align-items: center;                  /* Centraliza horizontalmente */
-  justify-content: center;              /* Centraliza verticalmente */
-  font-size: calc(10px + 2vmin);        /* Tamanho de fonte adaptável à tela */
-  color: white;                         /* Texto branco */
-}
-
-/* ----- LINKS PADRÃO (ex: "Learn React") ----- */
-.App-link {
-  color: #61dafb;  /* Azul claro — cor padrão da logo do React */
-}
-
-/* ----- ANIMAÇÃO DO LOGO (giro contínuo) ----- */
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);    /* Começa sem rotação */
-  }
-  to {
-    transform: rotate(360deg);  /* Gira 360° (rotação completa) */
+  .panels{
+    flex-direction:column;
+    align-items:center;
   }
 }

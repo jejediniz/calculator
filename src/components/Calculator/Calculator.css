@@ -1,74 +1,121 @@
-/* ----- CONTAINER PRINCIPAL DA CALCULADORA ----- */
-.calculator {
-    width: 300px;                     /* Define a largura da calculadora */
-    margin: 50px auto;                /* Centraliza na página com margens superior e inferior de 50px */
-    padding: 20px;                    /* Espaçamento interno (entre borda e conteúdo) */
-    background: #222;                 /* Cor de fundo escura */
-    color: white;                     /* Cor padrão do texto */
-    border-radius: 10px;              /* Bordas arredondadas */
-    text-align: center;               /* Centraliza o conteúdo dentro do container */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);  /* Sombra ao redor da calculadora */
+/* -------------------------------------------------------------------------- */
+/* PAINEL PRINCIPAL DA CALCULADORA                                            */
+/* Este bloco controla o tamanho, visual e estilo geral do painel inteiro.    */
+/* -------------------------------------------------------------------------- */
+
+.calculator-panel{
+  width: 360px;                 /* Largura total da calculadora (mude aqui p/ aumentar/diminuir) */
+  padding: 22px;                /* Espaço interno entre borda e conteúdo */
+  border-radius: 14px;          /* Arredondamento das bordas da calculadora */
+  
+  /* Fundo do painel (mude cores aqui) */
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+
+  /* Sombra externa + sombra interna suave */
+  box-shadow: 
+    0 10px 30px rgba(0,0,0,0.25), 
+    inset 0 1px 0 rgba(255,255,255,0.04);
+
+  backdrop-filter: blur(8px);   /* Efeito fosco (glassmorphism) */
+  color: #2b1f18;               /* Cor padrão do texto */
 }
 
-/* ----- ÁREA DO DISPLAY (ONDE OS NÚMEROS E RESULTADOS APARECEM) ----- */
-.display {
-    display: flex;                    /* Usa flexbox para organizar os elementos */
-    flex-direction: column;           /* Organiza os itens em coluna (um abaixo do outro) */
-    align-items: center;              /* Centraliza os itens horizontalmente */
-    margin-bottom: 15px;              /* Espaçamento inferior (entre display e botões) */
+/* -------------------------------------------------------------------------- */
+/* CABEÇALHO DA CALCULADORA (texto “Calculadora — modo tecnológico”)          */
+/* -------------------------------------------------------------------------- */
+
+.header{
+  font-size: 16px;               /* Tamanho do texto do título */
+  color: rgba(7, 6, 6, 0.6);        /* Cor do título */
+  margin-bottom: 10px;           /* Espaço abaixo do header */
+  font-weight: 600;              /* Espessura da fonte */
+  letter-spacing: .4px;          /* Espaçamento entre letras */
 }
 
-/* ----- CAMPO DE ENTRADA DO DISPLAY ----- */
-.display input {
-    width: 100%;                      /* Ocupa toda a largura do container */
-    height: 50px;                     /* Altura do campo */
-    font-size: 1.5em;                 /* Tamanho grande para os números */
-    text-align: right;                /* Alinha o texto à direita (como em calculadoras reais) */
-    padding: 5px;                     /* Espaçamento interno */
-    background: #444;                 /* Fundo cinza escuro */
-    border: none;                     /* Remove a borda padrão */
-    color: white;                     /* Texto branco */
-    border-radius: 5px;               /* Bordas arredondadas */
+/* -------------------------------------------------------------------------- */
+/* DISPLAY (onde aparece o número digitado)                                   */
+/* -------------------------------------------------------------------------- */
+
+.display{
+  height: 86px;                  /* Altura total do visor (mude aqui p/ aumentar) */
+  border-radius: 8px;            /* Bordas arredondadas do visor */
+
+  /* Fundo do visor (mude as cores do gradiente aqui) */
+  background: linear-gradient(180deg, rgba(107, 104, 104, 0.9), rgba(255,255,255,0.8));
+
+  padding: 18px;                 /* Espaço interno */
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.06); /* Sombra interna */
+  
+  display:flex;                  /* Permite alinhar conteúdo */
+  align-items:center;            /* Centraliza verticalmente o número */
+  justify-content:flex-end;      /* Alinha número à direita */
+  
+  margin-bottom: 18px;           /* Espaço entre display e botões */
 }
 
-/* ----- EXIBIÇÃO DO RESULTADO FINAL ----- */
-.result {
-    font-size: 1.2em;                 /* Tamanho da fonte um pouco menor que o input */
-    margin-top: 5px;                  /* Espaçamento superior em relação ao input */
+/* Texto dentro do visor */
+.expr{
+  font-size: 36px;               /* Tamanho do número exibido */
+  font-weight: 600;              /* Espessura */
+  color: #17751b;                /* Cor do número */
 }
 
-/* ----- ÁREA DOS BOTÕES ----- */
-.buttons {
-    display: grid;                    /* Usa grid layout para organizar os botões */
-    grid-template-columns: repeat(4, 1fr);  /* Cria 4 colunas de tamanhos iguais */
-    gap: 10px;                        /* Espaçamento entre os botões */
+/* -------------------------------------------------------------------------- */
+/* KEYBOARD / TECLAS                                                         */
+/* -------------------------------------------------------------------------- */
+
+.keypad{
+  display:grid;                  /* Define layout em grade */
+  grid-template-columns: repeat(4, 1fr); /* 4 colunas iguais */
+  gap: 12px;                     /* Espaço entre os botões */
 }
 
-/* ----- ESTILO PADRÃO DOS BOTÕES ----- */
-button {
-    width: 60px;                      /* Largura fixa do botão */
-    height: 60px;                     /* Altura fixa do botão */
-    font-size: 1.5em;                 /* Tamanho da fonte grande */
-    border: none;                     /* Remove a borda padrão */
-    background: #666;                 /* Cor de fundo padrão */
-    color: white;                     /* Texto branco */
-    border-radius: 5px;               /* Bordas arredondadas */
-    cursor: pointer;                  /* Mostra a mãozinha ao passar o mouse */
-    transition: background 0.3s;      /* Animação suave ao mudar a cor do fundo */
+/* -------------------------------------------------------------------------- */
+/* ESTILO PADRÃO DAS TECLAS                                                 */
+/* -------------------------------------------------------------------------- */
+
+.key{
+  padding: 18px;                 /* Tamanho interno da tecla (mude aqui p/ deixar maior ou menor) */
+  border-radius: 10px;           /* Arredondamento das teclas */
+  border: none;                  /* Remove borda padrão */
+
+  font-size: 18px;               /* Tamanho do texto da tecla */
+
+  background: linear-gradient(180deg, #fffefe, #f3ece6); /* Cor de fundo da tecla */
+
+  /* Sombra externa (mude a intensidade se quiser mais relevo) */
+  box-shadow: 0 6px 10px rgba(0,0,0,0.12);
+
+  cursor: pointer;               /* Cursor ao passar o mouse */
+  
+  /* Animação ao pressionar */
+  transition: transform .08s ease, box-shadow .12s ease;
 }
 
-/* ----- EFEITO AO PASSAR O MOUSE SOBRE OS BOTÕES ----- */
-button:hover {
-    background: #888;                 /* Fica mais claro ao passar o mouse */
+/* Quando tecla é pressionada ou ativada pelo teclado */
+.key:active, .key.active{
+  transform: translateY(2px);     /* Efeito de apertar */
+  box-shadow: 0 3px 6px rgba(0,0,0,0.14); /* Sombra mais curta */
 }
 
-/* ----- BOTÃO DE LIMPAR (CLEAR) ----- */
-.clear {
-    grid-column: span 4;              /* Faz o botão ocupar todas as 4 colunas da grade */
-    background: #d9534f;              /* Cor vermelha para destacar */
+/* -------------------------------------------------------------------------- */
+/* TECLA ESPECIAL "=" (igual)                                                */
+/* -------------------------------------------------------------------------- */
+
+.key.equals{
+  grid-column: 4 / 5;               /* Mantém o botão na última coluna */
+  background: linear-gradient(180deg, #299232, #299232);  /* Cor única do botão "=" */
+  color: white;                      /* Texto branco */
+  font-weight:700;                   /* Destaque */
 }
 
-/* ----- EFEITO HOVER PARA O BOTÃO DE LIMPAR ----- */
-.clear:hover {
-    background: #c9302c;              /* Vermelho mais escuro ao passar o mouse */
+/* -------------------------------------------------------------------------- */
+/* EXEMPLO PARA PERSONALIZAR TECLAS ESPECÍFICAS (1°, 2°, 3° botão da grelha) */
+/* -------------------------------------------------------------------------- */
+
+.key:nth-child(1),
+.key:nth-child(2),
+.key:nth-child(3){
+  /* Você pode personalizar teclas específicas aqui */
+  /* Exemplo: background:red; */
 }

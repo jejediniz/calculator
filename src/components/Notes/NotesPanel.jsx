@@ -1,235 +1,221 @@
-// Importa o React e o hook personalizado de notas
-import React from "react";
-import { useNotes } from "../../hooks/useNotes";
+import React, { useEffect, useRef, useState } from "react";
+import "./NotesPanel.css";
 
-// Painel de notas: lista, filtro, criação, exclusão e editor
+const STORAGE_KEY = "myapp_notes_v1";
+
 export default function NotesPanel() {
-  // Obtém do hook todos os dados e ações sobre notas
-  const {
-    notes,          // lista completa de notas
-    activeId,       // id da nota atualmente selecionada
-    setActiveId,    // define a nota ativa
-    createNote,     // cria nova nota
-    deleteNote,     // exclui uma nota
-    updateNote,     // atualiza título/conteúdo
-    reorderToTop,   // reordena a nota para o topo (recente)
-  } = useNotes();
+  const [notes, setNotes] = useState([]);
+  const [activeId, setActiveId] = useState(null);
+  const [query, setQuery] = useState("");
 
-  // Calcula a nota ativa (objeto) a partir do id
-  // Memoizado para evitar recomputações desnecessárias
-  const activeNote = React.useMemo(
-    () => notes.find((n) => n.id === activeId) ?? null,
-    [notes, activeId]
+  // Editor local (manual save)
+  const [localTitle, setLocalTitle] = useState("");
+  const [localBody, setLocalBody] = useState("");
+
+  const titleRef = useRef(null);
+
+  // load
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        setNotes(parsed);
+        if (parsed.length > 0) {
+          setActiveId(parsed[0].id);
+          setLocalTitle(parsed[0].title);
+          setLocalBody(parsed[0].body);
+        }
+      }
+    } catch {
+      setNotes([]);
+    }
+  }, []);
+
+  // persist
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+  }, [notes]);
+
+  // select note (sync local editor)
+  const selectNote = (id) => {
+    const n = notes.find((x) => x.id === id);
+    if (!n) return;
+    setActiveId(n.id);
+    setLocalTitle(n.title);
+    setLocalBody(n.body);
+    requestAnimationFrame(() => {
+      titleRef.current?.focus();
+      titleRef.current?.select?.();
+    });
+  };
+
+  // create
+  const createNote = () => {
+    const newNote = {
+      id: Date.now(),
+      title: "Nova nota",
+      body: "",
+      updatedAt: new Date().toISOString(),
+    };
+    setNotes((prev) => [newNote, ...prev]);
+    // seleciona nova nota
+    setActiveId(newNote.id);
+    setLocalTitle(newNote.title);
+    setLocalBody(newNote.body);
+    requestAnimationFrame(() => titleRef.current?.focus());
+  };
+
+  // save manual
+ const handleSave = () => {
+  if (!activeId) return;
+
+  // 1. Salva a nota atual
+  setNotes((prev) =>
+    prev.map((n) =>
+      n.id === activeId
+        ? {
+            ...n,
+            title: localTitle,
+            body: localBody,
+            updatedAt: new Date().toISOString(),
+          }
+        : n
+    )
   );
 
-  // Estados do filtro de busca e do editor (campos controlados)
-  const [filter, setFilter] = React.useState("");
-  const [editingTitle, setEditingTitle] = React.useState("");
-  const [editingContent, setEditingContent] = React.useState("");
+  // 2. Cria automaticamente uma nova nota vazia
+  const newNote = {
+    id: Date.now(),
+    title: "Nova nota",
+    body: "",
+    updatedAt: new Date().toISOString(),
+  };
 
-  // Sincroniza o editor quando a nota ativa muda
-  // (carrega título e conteúdo da nota selecionada)
-  React.useEffect(() => {
-    setEditingTitle(activeNote?.title ?? "");
-    setEditingContent(activeNote?.content ?? "");
-  }, [activeNote?.id, activeNote?.title, activeNote?.content]);
+  // 3. Adiciona no topo da lista
+  setNotes((prev) => [newNote, ...prev]);
 
-  // Autosave com debounce (salva após 600ms sem digitação)
-  const saveTimerRef = React.useRef(null);
-  React.useEffect(() => {
-    if (!activeNote) return;
+  // 4. Seta como ativa
+  setActiveId(newNote.id);
 
-    // Limpa um timer pendente, se houver
-    if (saveTimerRef.current) {
-      clearTimeout(saveTimerRef.current);
-    }
+  // 5. Limpa o editor imediatamente
+  setLocalTitle("");
+  setLocalBody("");
 
-    // Agenda um salvamento "preguiçoso"
-    saveTimerRef.current = setTimeout(() => {
-      try {
-        // Salva conteúdo apenas se mudou em relação ao original
-        if (editingContent !== activeNote.content) {
-          updateNote(activeNote.id, { content: editingContent });
-          // Move a nota para o topo ao alterar conteúdo
-          reorderToTop(activeNote.id);
-        }
-        // Salva título apenas se mudou
-        if (editingTitle !== activeNote.title) {
-          updateNote(activeNote.id, { title: editingTitle });
-        }
-      } catch (err) {
-        // Falha silenciosa (ex.: localStorage indisponível)
-        // console.error(err);
+  // 6. Foca o campo de título da nova nota
+  requestAnimationFrame(() => {
+    titleRef.current?.focus();
+  });
+};
+
+  // remove
+  const removeNote = (id) => {
+    const remaining = notes.filter((n) => n.id !== id);
+    setNotes(remaining);
+    if (id === activeId) {
+      if (remaining.length > 0) {
+        // seleciona a primeira nota restante
+        const next = remaining[0];
+        setActiveId(next.id);
+        setLocalTitle(next.title);
+        setLocalBody(next.body);
+      } else {
+        setActiveId(null);
+        setLocalTitle("");
+        setLocalBody("");
       }
-    }, 600);
-
-    // Limpa o timer ao desmontar ou antes de reagendar
-    return () => {
-      if (saveTimerRef.current) {
-        clearTimeout(saveTimerRef.current);
-        saveTimerRef.current = null;
-      }
-    };
-  }, [
-    editingContent,
-    editingTitle,
-    activeNote?.id,
-    activeNote?.content,
-    activeNote?.title,
-    updateNote,
-    reorderToTop,
-  ]);
-
-  // Cria uma nova nota e a seleciona
-  function handleNew() {
-    const id = createNote();
-    // Em alguns cenários createNote já define a ativa; garantindo a seleção
-    if (id) {
-      setActiveId(id);
     }
-  }
+  };
 
-  // Exclui nota com confirmação
-  function handleDelete(e, id) {
-    e.stopPropagation(); // evita disparar o clique de seleção do item
-    if (!id) return;
-    if (window.confirm("Excluir nota? Esta ação não pode ser desfeita.")) {
-      deleteNote(id);
-    }
-  }
+  const filtered = notes.filter((n) => {
+    const q = query.trim().toLowerCase();
+    if (!q) return true;
+    return (n.title + " " + n.body).toLowerCase().includes(q);
+  });
 
-  // Lista filtrada de notas (memoizada)
-  // Filtro atua somente sobre o título, case-insensitive
-  const filtered = React.useMemo(() => {
-    const q = filter.trim().toLowerCase();
-    if (!q) return notes;
-    return notes.filter((n) => (n.title || "").toLowerCase().includes(q));
-  }, [notes, filter]);
-
-  // Renderização
   return (
-    // Painel lateral (aside) com largura fixa máx.
-    <aside style={{ width: 360, maxWidth: "38vw", marginLeft: 18 }}>
-      {/* Barra de busca + botão Nova nota */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-        <div style={{ flex: 1 }}>
-          <input
-            placeholder="Procurar notas..."
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="calc-btn"
-            style={{ height: 44, padding: "0 12px", borderRadius: 10, fontSize: "0.95rem" }}
-            aria-label="Procurar notas" // acessibilidade
-          />
-        </div>
+    <div className="notes-panel">
+      <div className="notes-header">
+        <h3 className="notes-title">Anotações</h3>
 
-        <button
-          onClick={handleNew}
-          className="calc-btn"
-          style={{ width: 44, height: 44, borderRadius: 10 }}
-          aria-label="Nova nota"
-          title="Nova nota"
-        >
-          +
-        </button>
+        <div className="notes-controls">
+          <input
+            className="notes-search"
+            placeholder="Pesquisar notas..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            aria-label="Pesquisar notas"
+          />
+          <button className="btn-create" onClick={createNote} aria-label="Criar nota">
+            Criar nota
+          </button>
+        </div>
       </div>
 
-      {/* Colunas: lista (esquerda) + editor (direita) */}
-      <div style={{ display: "flex", gap: 12 }}>
-        {/* Lista de notas */}
-        <div style={{ width: 140 }}>
-          <div
-            style={{
-              maxHeight: 420,
-              overflowY: "auto",
-              display: "flex",
-              flexDirection: "column",
-              gap: 8,
-            }}
-          >
-            {/* Mensagem quando filtro não retorna itens */}
-            {filtered.length === 0 && <div className="btn-label-small">Nenhuma nota</div>}
-
-            {/* Itens de nota */}
-            {filtered.map((n) => {
-              const isActive = n.id === activeId;
-              return (
-                <div
-                  key={n.id}
-                  onClick={() => setActiveId(n.id)} // seleciona nota
-                  className={`calc-btn ${isActive ? "active" : ""}`} // destaque da nota ativa
-                  style={{ justifyContent: "space-between", padding: "10px 8px", cursor: "pointer" }}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") setActiveId(n.id); // acessibilidade via teclado
-                  }}
-                >
-                  {/* Título + data de atualização */}
-                  <div style={{ textAlign: "left", minWidth: 0 }}>
-                    <div style={{ fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                      {n.title || "Sem título"}
-                    </div>
-                    <div style={{ fontSize: 12, color: "rgba(190,239,255,0.6)" }}>
-                      {n.updatedAt ? new Date(n.updatedAt).toLocaleString() : ""}
-                    </div>
-                  </div>
-
-                  {/* Botão excluir da nota */}
-                  <div style={{ marginLeft: 8 }}>
-                    <button
-                      onClick={(e) => handleDelete(e, n.id)}
-                      className="btn-label-small"
-                      aria-label={`Excluir nota ${n.title}`}
-                      title="Excluir"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Editor da nota selecionada */}
-        <div style={{ flex: 1 }}>
-          {activeNote ? (
-            <div>
-              {/* Campo de título (controlado) */}
+      <div className="notes-body-column">
+        {/* EDITOR em cima */}
+        <section className="notes-editor">
+          {activeId ? (
+            <>
               <input
-                value={editingTitle}
-                onChange={(e) => setEditingTitle(e.target.value)}
-                className="calc-btn"
-                style={{ marginBottom: 8, height: 44, padding: "0 10px", fontWeight: 700 }}
-                placeholder="Título"
+                ref={titleRef}
+                className="note-title-input"
+                value={localTitle}
+                onChange={(e) => setLocalTitle(e.target.value)}
+                placeholder="Título da nota"
                 aria-label="Título da nota"
               />
 
-              {/* Campo de conteúdo (controlado) */}
               <textarea
-                value={editingContent}
-                onChange={(e) => setEditingContent(e.target.value)}
-                placeholder="Digite suas anotações aqui. Salvo automaticamente."
-                style={{
-                  width: "100%",
-                  minHeight: 260,
-                  resize: "vertical",
-                  padding: 12,
-                  borderRadius: 10,
-                  background: "rgba(5,10,20,0.45)",
-                  color: "#bfefff",
-                  border: "1px solid rgba(255,255,255,0.03)",
-                }}
-                aria-label="Conteúdo da nota"
+                className="note-body-input"
+                value={localBody}
+                onChange={(e) => setLocalBody(e.target.value)}
+                placeholder="Escreva sua nota aqui..."
+                aria-label="Corpo da nota"
               />
-            </div>
+
+              <div className="editor-actions-row">
+                <button className="btn-save" onClick={handleSave}>
+                  Salvar nota
+                </button>
+              </div>
+            </>
           ) : (
-            // Mensagem quando nenhuma nota está selecionada
-            <div className="btn-label-small">Selecione ou crie uma nota para começar</div>
+            <div className="notes-empty">Nenhuma nota selecionada</div>
           )}
-        </div>
+        </section>
+
+        {/* LISTA embaixo do editor */}
+        <aside className="notes-list-below" aria-label="Lista de notas">
+          {filtered.length === 0 ? (
+            <div className="empty-list">Nenhuma nota</div>
+          ) : (
+            filtered.map((n) => (
+              <div
+                key={n.id}
+                className={`note-row ${n.id === activeId ? "active" : ""}`}
+                onClick={() => selectNote(n.id)}
+              >
+                <div className="note-row-left">
+                  <div className="note-row-title">{n.title}</div>
+                  <div className="note-row-date">{new Date(n.updatedAt).toLocaleString()}</div>
+                </div>
+
+                <button
+                  className="del-row"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeNote(n.id);
+                  }}
+                  aria-label={`Excluir ${n.title}`}
+                >
+                  ✕
+                </button>
+              </div>
+            ))
+          )}
+        </aside>
       </div>
-    </aside>
+    </div>
   );
 }

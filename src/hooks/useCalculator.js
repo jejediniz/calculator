@@ -1,59 +1,111 @@
-// Importa o hook useReducer do React e a função evaluateExpression (que faz os cálculos)
-import { useReducer } from "react";
-import { evaluateExpression } from "../utils/math";
+// src/hooks/useCalculator.js
+import { useEffect, useState, useCallback } from "react";
+import { evaluateExpression } from "../utils/math"; // ajuste caminho se necessário
 
-// Estado inicial da calculadora
-const initialState = {
-  display: "0", // O display começa mostrando "0"
-};
+export default function useCalculator(initial = "") {
+  const [expression, setExpression] = useState(initial);
+  const [display, setDisplay] = useState("");
+  const [lastKey, setLastKey] = useState(null); // para highlight do keypad
 
-// Função "reducer" — responsável por modificar o estado da calculadora
-function reducer(state, action) {
-  switch (action.type) {
-    // Caso o usuário digite um número ou operador
-    case "INPUT":
-      return {
-        // Se o display estiver em "0", substitui pelo valor digitado
-        // Caso contrário, concatena o novo valor ao que já existe
-        display: state.display === "0" ? action.value : state.display + action.value,
-      };
+  useEffect(() => {
+    setDisplay(expression || "0");
+  }, [expression]);
 
-    // Limpa todo o display
-    case "CLEAR":
-      return { display: "0" };
+  const append = useCallback((value) => {
+    setExpression((prev) => {
+      // evita múltiplos pontos seguidos sem número
+      if (value === "." && /\.\d*$/.test(prev)) return prev;
+      return prev + value;
+    });
+    setLastKey(value);
+  }, []);
 
-    // Apaga o último caractere digitado
-    // Se não restar nada, volta para "0"
-    case "DELETE":
-      return { display: state.display.slice(0, -1) || "0" };
+  const clear = useCallback(() => {
+    setExpression("");
+    setLastKey("C");
+  }, []);
 
-    // Avalia (calcula) a expressão matemática digitada
-    case "EVALUATE":
-      try {
-        // Usa a função evaluateExpression para calcular o resultado
-        return { display: String(evaluateExpression(state.display)) };
-      } catch {
-        // Caso ocorra erro (ex: expressão inválida), mostra "Error"
-        return { display: "Error" };
+  const backspace = useCallback(() => {
+    setExpression((prev) => prev.slice(0, -1));
+    setLastKey("DEL");
+  }, []);
+
+  const evaluate = useCallback(() => {
+    try {
+      const res = evaluateExpression(expression || "0");
+      setExpression(String(res));
+      setLastKey("=");
+    } catch (err) {
+      setDisplay("Erro");
+    }
+  }, [expression]);
+
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      // não intercepta quando o usuário está digitando em input/textarea/contentEditable
+      const active = document.activeElement;
+      if (!active) return;
+      const tag = active.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || active.isContentEditable) return;
+
+      const key = e.key;
+
+      // Mapeamento direto de teclas
+      if (/\d/.test(key)) { // 0-9
+        append(key);
+        e.preventDefault();
+        return;
       }
 
-    // Caso o tipo de ação não seja reconhecido, retorna o estado atual sem alteração
-    default:
-      return state;
-  }
-}
+      if (key === ".") {
+        append(".");
+        e.preventDefault();
+        return;
+      }
 
-// Hook personalizado que encapsula toda a lógica da calculadora
-export function useCalculator() {
-  // useReducer gerencia o estado da calculadora com base no reducer e estado inicial
-  const [state, dispatch] = useReducer(reducer, initialState);
+      if (key === "+" || key === "-" || key === "*" || key === "/") {
+        append(key);
+        e.preventDefault();
+        return;
+      }
 
-  // Retorna o valor atual do display e funções para manipular a calculadora
+      if (key === "Enter" || key === "=") {
+        evaluate();
+        e.preventDefault();
+        return;
+      }
+
+      if (key === "Backspace") {
+        backspace();
+        e.preventDefault();
+        return;
+      }
+
+      if (key === "Escape" || key.toLowerCase() === "c") {
+        clear();
+        e.preventDefault();
+        return;
+      }
+
+      if (key === "(" || key === ")") {
+        append(key);
+        e.preventDefault();
+        return;
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [append, backspace, clear, evaluate]);
+
   return {
-    display: state.display,                   // Valor mostrado na tela
-    input: (v) => dispatch({ type: "INPUT", value: v }),     // Insere número ou operador
-    clear: () => dispatch({ type: "CLEAR" }),                 // Limpa tudo
-    del: () => dispatch({ type: "DELETE" }),                  // Apaga último dígito
-    evaluate: () => dispatch({ type: "EVALUATE" }),           // Calcula o resultado
+    expression,
+    display,
+    append,
+    clear,
+    backspace,
+    evaluate,
+    lastKey,
+    setExpression
   };
 }

@@ -2,52 +2,115 @@
 @tailwind components;
 @tailwind utilities;
 
-/* fonte fallback */
+
 :root {
-  --neon: #00eaff;
-  --neon-2: #7c3aed;
-  --panel: rgba(255,255,255,0.04);
+  /* Backgrounds — amendoado acinzentado moderno */
+  --bg-page: #805d35;                    
+  --bg-spot-1: rgba(205,190,170,0.22);   /* textura suave */
+  --bg-spot-2: rgba(185,170,150,0.18);   /* sombra amendoada discreta */
+
+  /* Panels / glass */
+  --panel-top: lab(67.04% 5.09 1.84 / 0.92);
+  --panel-bottom: rgba(248,244,236,0.88);
+  --glass-border: rgba(120,110,95,0.08);
+
+  /* Accents — amendoado moderno */
+  --accent-olive-1: #ccb79d;             /* amêndoa clara elegante */
+  --accent-olive-2: #a89478;             /* amêndoa acinzentada */
+  --accent-amber:  #8a6f54;              /* destaque sóbrio e profissional */
+
+  /* Textos */
+  --text-dark:  #2e2923;                 /* marrom acinzentado profundo */
+  --text-muted: #6c6257;                 /* neutro elegante */
+
+  /* Sombras */
+  --soft-shadow: rgba(60,52,45,0.10);
+  --glass-shadow: rgba(50,44,38,0.08);
 }
 
-/* Corpo / fundo */
-html, body, #root {
-  height: 100%;
-}
+
+
+/* =========================
+   Reset / base
+   ========================= */
+html, body, #root { height: 100%; }
+* { box-sizing: border-box; }
+
 body {
-  background: radial-gradient(1200px 600px at 10% 10%, rgba(124,58,237,0.10), transparent 10%),
-              radial-gradient(900px 400px at 90% 90%, rgba(0,234,255,0.06), transparent 10%),
-              #0b1020;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  color: #e6f7ff;
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background:
+    radial-gradient(900px 600px at 22% 20%, var(--bg-spot-1), transparent 42%),
+    radial-gradient(800px 420px at 78% 80%, var(--bg-spot-2), transparent 48%),
+    var(--bg-page);
+  color: var(--text-dark);
   -webkit-font-smoothing:antialiased;
   -moz-osx-font-smoothing:grayscale;
+  line-height: 1.38;
 }
 
-/* Centralizar layout da página */
+
+
+
+/* =========================
+   App layout helpers
+   ========================= */
 .app-center {
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 28px;
 }
 
-/* Painel de vidro */
+.layout-row {
+  display:flex;
+  gap: 28px;
+  align-items:flex-start;
+  width: 100%;
+  max-width: 1200px;
+}
+
+/* Reusable panel style (use .panel on components) */
+.panel {
+  background: linear-gradient(180deg, var(--panel-top), var(--panel-bottom));
+  border-radius: 14px;
+  padding: 16px;
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 10px 30px var(--soft-shadow);
+  backdrop-filter: blur(6px) saturate(110%);
+}
+
+/* Small typography helpers */
+.hint { font-size: 0.92rem; color: var(--text-muted); margin: 0; }
+.lead { font-size: 1rem; color: var(--text-dark); font-weight: 700; }
+
+/* Button helper */
+.btn-soft {
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(60,50,40,0.04);
+  background: linear-gradient(180deg, rgba(255,250,244,0.96), rgba(250,245,236,0.96));
+  color: var(--text-dark);
+  cursor: pointer;
+  transition: transform .12s ease, box-shadow .12s ease, background .12s;
+}
+.btn-soft:hover { transform: translateY(-2px); box-shadow: 0 8px 18px var(--glass-shadow); }
+
+
+/* Painel da calculadora (use .calc-panel no componente) */
 .calc-panel {
   width: 420px;
   max-width: 95vw;
-  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
-  border-radius: 18px;
-  padding: 20px;
-  box-shadow:
-    0 10px 30px rgba(2,6,23,0.7),
-    0 0 40px rgba(0,234,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
-  backdrop-filter: blur(8px) saturate(120%);
   position: relative;
+  border-radius: 18px;
+  padding: 18px;
+  background: linear-gradient(180deg, var(--panel-top), var(--panel-bottom));
+  border: 1px solid rgba(100,80,60,0.06);
+  box-shadow: 0 14px 36px rgba(80,60,40,0.06);
 }
 
-/* Linha de destaque do cabeçalho */
+/* faixa superior de destaque (sutil, amendoada) */
 .calc-accent {
   position: absolute;
   left: 0;
@@ -56,8 +119,8 @@ body {
   width: 100%;
   border-top-left-radius: 18px;
   border-top-right-radius: 18px;
-  background: linear-gradient(90deg, rgba(0,234,255,0.95), rgba(124,58,237,0.95));
-  filter: blur(6px);
+  background: linear-gradient(90deg, rgba(240, 171, 22, 0.95), rgba(185,150,105,0.92));
+  filter: blur(5px);
   opacity: 0.9;
 }
 
@@ -65,89 +128,164 @@ body {
 .calc-display {
   height: 92px;
   border-radius: 12px;
-  background: rgba(5,10,20,0.45);
+  background: linear-gradient(180deg, rgba(20,28,24,0.06), rgba(12,18,14,0.02));
   display:flex;
   align-items:center;
-  justify-content: flex-end;
+  justify-content:flex-end;
   padding: 18px;
   font-size: 2.2rem;
-  color: #bfefff;
-  letter-spacing: 0.6px;
-  box-shadow: inset 0 -6px 18px rgba(0,0,0,0.6);
-  border: 1px solid rgba(255,255,255,0.03);
-  overflow: hidden;
-  word-break: break-all;
+  color: var(--text-dark);
+  letter-spacing: 0.4px;
+  box-shadow: inset 0 -6px 18px rgba(0,0,0,0.04);
+  border: 1px solid rgba(0,0,0,0.04);
+  margin-bottom: 14px;
 }
 
-/* Pequeno subtítulo acima do display (opcional) */
-.calc-sub {
-  font-size: 0.8rem;
-  color: rgba(190,239,255,0.65);
-  margin-bottom: 8px;
-}
-
-/* Grade do teclado */
+/* Keypad grid (preserva layout original) */
 .keypad {
-  margin-top: 16px;
+  margin-top: 12px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
 }
 
-/* Base dos botões */
+/* Base dos botões — mantém dimensão da sua calculadora original */
 .calc-btn {
   height: 56px;
   border-radius: 12px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.12));
-  border: 1px solid rgba(255,255,255,0.03);
+  background: linear-gradient(180deg, rgba(255,250,244,0.98), rgba(250,243,230,0.98));
+  border: 1px solid rgba(100,80,60,0.06);
   display:flex;
   align-items:center;
   justify-content:center;
   font-weight: 600;
   font-size: 1.05rem;
-  color: #bfefff;
+  color: var(--text-dark);
   cursor: pointer;
   transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s;
-  user-select: none;
-  position: relative;
-  overflow: hidden;
 }
 
-/* Hover / foco */
+/* Hover/focus — sutis e elegantes */
 .calc-btn:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 30px rgba(0,234,255,0.06), 0 2px 8px rgba(124,58,237,0.04);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 22px rgba(80,60,40,0.06);
 }
 
-/* Visual de ativo (mouse pressionado ou teclado) */
+/* Active visual (pressionado) */
 .calc-btn.active {
   transform: translateY(0);
-  box-shadow: 0 6px 22px rgba(0,234,255,0.09);
-  background: linear-gradient(180deg, rgba(0,234,255,0.06), rgba(124,58,237,0.03));
-  color: white;
+  background: linear-gradient(180deg, rgba(245,240,230,0.98), rgba(230,210,185,0.98));
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.03);
 }
 
-/* Cores especiais */
-.btn-operator { color: #ffd6a5; }
-.btn-equal { 
-  background: linear-gradient(90deg, rgba(0,234,255,0.12), rgba(124,58,237,0.12));
-  color: white;
-  font-size: 1.05rem;
+/* Operadores e destaque */
+.btn-operator { color: var(--accent-olive-2); font-weight:700; }
+.btn-danger { color: #b85746; }
+
+/* Botão igual com destaque amendoado sutil */
+.btn-equal {
+  background: linear-gradient(90deg, var(--accent-olive-1), var(--accent-amber));
+  color: #2b2418;
   font-weight: 700;
-  box-shadow: 0 8px 30px rgba(0,234,255,0.06);
+  box-shadow: 0 8px 26px rgba(80,60,40,0.08);
 }
-.btn-danger { color: #ff9aa2; }
 
-/* Utilidades de espaçamento (para botões largos) */
-.col-span-2 { grid-column: span 2; }
-.col-span-4 { grid-column: span 4; }
+/* Responsividade — mantém proporções em telas pequenas */
+@media (max-width: 880px) {
+  .layout-row { flex-direction: column; gap: 18px; align-items: center; }
+  .calc-panel { width: 92vw; }
+}
 
-/* Pequenos rótulos sutis */
-.btn-label-small { font-size: 0.85rem; color: rgba(190,239,255,0.7); }
+/* =========================
+   Notes panel — harmonizado com a paleta
+   ========================= */
 
-/* Responsivo */
-@media (max-width:420px) {
-  .calc-panel { padding: 14px; border-radius: 14px; }
-  .calc-display { height: 84px; font-size: 1.6rem; padding: 14px; }
-  .calc-btn { height: 52px; font-size: 0.98rem; border-radius: 10px; }
+.notes-panel {
+  width: 620px;
+  max-width: 95vw;
+  display:flex;
+  gap:16px;
+  padding:14px;
+  border-radius:12px;
+  background: linear-gradient(180deg, var(--panel-top), var(--panel-bottom));
+  border:1px solid rgba(100,80,60,0.04);
+  box-shadow: 0 10px 26px rgba(80,60,40,0.05);
+  box-sizing: border-box;
+}
+
+/* left column */
+.notes-side { width:120px; display:flex; flex-direction:column; gap:12px; align-items:flex-start; }
+.notes-title { font-weight:800; color: var(--text-dark); letter-spacing: 0.04em; }
+.notes-create {
+  width:100%;
+  padding:8px 10px;
+  border-radius:8px;
+  background: linear-gradient(180deg, var(--accent-olive-1), var(--accent-olive-2));
+  color: var(--text-dark);
+  border:none;
+  font-weight:700;
+  cursor:pointer;
+}
+.notes-create:hover { background: linear-gradient(180deg, var(--accent-olive-2), var(--accent-olive-1)); }
+
+/* right area */
+.notes-content { flex:1; display:flex; flex-direction:column; gap:12px; }
+.notes-list { display:flex; flex-direction:column; gap:8px; max-height:34vh; overflow-y:auto; padding-right:6px; }
+.notes-item { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:10px 12px; border-radius:10px; background: rgba(0,0,0,0.01); border:1px solid rgba(0,0,0,0.03); cursor:pointer; }
+.notes-item:hover { transform: translateY(-2px); background: rgba(0,0,0,0.02); }
+.notes-item.active { background: rgba(0,0,0,0.03); outline:1px solid rgba(0,0,0,0.05); }
+
+.notes-item-left { display:flex; flex-direction:column; min-width:0; }
+.notes-item-title { color: var(--text-dark); font-weight:700; font-size:0.95rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.notes-item-snippet { color: var(--text-muted); font-size:0.85rem; margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+.notes-item-actions { display:flex; gap:8px; align-items:center; }
+.action-edit, .action-delete { padding:6px 8px; border-radius:8px; border:1px solid rgba(0,0,0,0.03); background: linear-gradient(180deg, rgba(255,250,244,0.96), rgba(250,243,230,0.96)); color: var(--text-dark); cursor:pointer; font-weight:700; }
+.action-delete:hover { background: rgba(215,85,70,0.08); color: #b85746; }
+
+/* editor card */
+.notes-editor-area { width:100%; display:flex; justify-content:center; }
+.editor-card {
+  width:100%;
+  max-width:100%;
+  background: var(--panel-top);
+  border-radius:10px;
+  padding:12px;
+  box-sizing:border-box;
+  color: var(--text-dark);
+  border:1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.04);
+  overflow: hidden;
+}
+.editor-header { display:flex; justify-content:space-between; gap:12px; align-items:center; }
+.editor-title { flex:1; height:36px; padding:6px 10px; border-radius:8px; border:1px solid rgba(0,0,0,0.06); background: var(--panel-top); color:var(--text-dark); font-weight:700; outline:none; }
+.editor-controls { display:flex; gap:8px; align-items:center; }
+.btn-edit, .btn-save, .btn-delete { padding:8px 10px; border-radius:8px; cursor:pointer; font-weight:700; }
+.btn-save { background: linear-gradient(180deg, var(--accent-olive-1), var(--accent-olive-2)); color: var(--text-dark); }
+.btn-edit { background: linear-gradient(180deg, rgba(240,235,228,0.95), rgba(235,225,210,0.95)); color: var(--text-dark); }
+.btn-delete { background: linear-gradient(180deg, rgba(255,245,240,0.94), rgba(245,230,220,0.94)); color: #d86c5b; border:1px solid rgba(0,0,0,0.06); }
+
+/* textarea */
+.editor-text {
+  width:100%;
+  max-width:100%;
+  min-height:120px;
+  max-height:28vh;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid rgba(0,0,0,0.06);
+  background: var(--panel-top);
+  color:var(--text-dark);
+  resize:vertical;
+  outline:none;
+  box-sizing:border-box;
+  overflow:auto;
+}
+
+/* small responsive adjustments */
+@media (max-width: 920px) {
+  .layout-row { flex-direction: column; gap: 18px; align-items: center; padding: 12px; }
+  .calc-panel { width: 92vw; }
+  .notes-panel { width: 92vw; }
+  .notes-side { width: 100%; flex-direction: row; justify-content: space-between; align-items: center; }
 }
